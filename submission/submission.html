@@ -147,17 +147,9 @@
       function updateQuestion() {
         //This ensures the question picked hasn't already been asked
         let questionsIndex = 0;
-        let alreadyAsked = false;
         do {
           questionsIndex = Math.floor(Math.random() * QUESTIONS.length)
-          alreadyAsked = false;
-          for(const index of prevQuestions) {
-            if (index == questionsIndex) {
-              alreadyAsked = true;
-              break;
-            }
-          }
-        } while (alreadyAsked);
+        } while (prevQuestions.includes(questionsIndex));
         prevQuestions.push(questionsIndex);
 
         // Updates text and correctAnswer
