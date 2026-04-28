@@ -2,82 +2,182 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Joel</title>
+  <title>Quiz</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  <style type="text/css">
-    html,
-    body {
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
       background: transparent;
-      margin: 0;
-      padding: 0;
+    }
+
+    #overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-family: sans-serif;
     }
 
-    #overlay-container {
-      width: 960px;
-      height: 540px;
+    #quiz {
+      background: white;
+      color: #333;
+      padding: 24px 32px;
+      border-radius: 8px;
+      text-align: center;
+      min-width: 280px;
     }
 
-    /* Your style here... (feel free to remove this example styling) */
-    #skip {
-      display: none; /* Hidden until ad starts */
-      position: absolute;
-      bottom: 60px;
-      right: 0;
-      padding: 10px 18px;
-      background: rgba(0, 0, 0, 0.6);
-      border: 1px solid black;
-      border-right-width: 0;
-      font-size: 1.2rem;
-      border-radius: 4px 0 0 4px;
+    #quiz h3 {
+      margin-bottom: 16px;
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    #options {
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .option {
+      font-size: 32px;
+      cursor: pointer;
+      background: none;
+      border: 1px color black;
+      color: #000;
+      border-radius: 4px;
+      padding: 8px 8px;
+      line-height: 1;
+    }
+
+    .options:hover {
+      background-color: #ddd;
+    }
+
+    #start {
+      background: #1a73e8;
       color: white;
+      border: none;
+      padding: 8px 24px;
+      border-radius: 4px;
+      font-size: 14px;
       cursor: pointer;
     }
+
+    #start:hover {
+      background: #1557b0;
+    }
+
+    #message {
+      margin-top: 12px;
+      font-size: 13px;
+      color: #d93025;
+      min-height: 20px;
+    }
+
+    .hidden { display: none !important; }
   </style>
 </head>
-
 <body>
-  <div id="overlay-container">
-    <!-- We've added a sample button. Feel free to remove it: -->
-    <button id="skip">
-      Skip Ad...
-    </button>
+  <div id="overlay" class = "hidden">
+    <div id="quiz">
+      <h3 id="topMsg">To confirm you've watched the ad, please answer a few questions:</h3>
+      <div id="options">
+        <button class="option" data-value=1>Option A</button>
+        <button class="option" data-value=2>Option B</button>
+        <button class="option" data-value=3>Option C</button>
+        <button class="option" data-value=4>Option D</button>
+      </div>
+      <button id="start">Start</button>
+      <div id="message"></div>
+    </div>
   </div>
 
-  <script type="text/javascript">
-    (function(window, document){
-      // This is how you tell the parent window that the ad was successfully skipped.
+  <script>
+    (function(window, document) {
+      const topMsg = document.getElementById('topMsg');
+      const options = document.querySelectorAll('.option');
+      const start = document.getElementById('start');
+      const messageEl = document.getElementById('message');
+
+      let chosenAnswer = 0;
+      let correctAnswer = 0;
+      let question = 0;
+
+      // I'm aware that these questions are completely incorrect, but that makes it even more annoying lol
+      const QUESTIONS = [ // Format: [question, options a through d, correct option]
+        ['How many times did the letter \'E\' appear in the ad?', '9', '21', '67', '5', 3], // haha six-seveeeeen
+        ['How long was the ad?', '12 seconds', '30 seconds', '38 seconds', 'None of the above', 2],
+        ['How often will you use this product?', 'Daily', 'Hourly', 'Every 2 days', 'Weekly', 1],
+        ['How much does the product in the ad cost?', '$23.99', '$3', '$3k', '$69', 4],
+        ['What is the actor\'s name?', 'John Smith', 'Jimmy Donaldson', 'Hugh Jass', 'None of these', 3],
+        ['Is the character in the ad left or right-handed?', 'Left', 'Right', 'Both', 'Neither', 2],
+        ['What was the average color of the 100th frame?', 'Blue', 'Tan', 'Green', 'Purple', 4],
+        ['What was the last word of the first sentence in the ad?', 'it', 'end', 'flavor', 'you', 4],
+        ['What year was the ad created?', '1974', '2024', '1979', '1992', 3],
+        ['Would you like to purchase the product?', 'Definitely Yes', 'Yes', 'Unsure', 'No', 1],
+      ];
+      const NUMBER_OF_QUESTIONS = 3; // # of right answers in a row for a success
+
       function adSuccess() {
         window.top.postMessage({ type: 'success' }, '*');
       }
+      function adFail() {
+        window.top.postMessage({ type: 'fail' }, '*');
+      }
 
-      const skipButton = document.getElementById('skip');
+      // Updates the text for the question and the correctAnswer variable
+      function updateQuestion() {
+        let questionArray = QUESTIONS[Math.floor(Math.random() * QUESTIONS.length)];
+        topMsg.textContent = "Question " + (++question) + "/" + NUMBER_OF_QUESTIONS + ": " + questionArray[0];
+        options.forEach(option => {
+          option.textContent = questionArray[option.dataset.value];
+        });
+        correctAnswer = questionArray[5];
+      }
 
-      // Listen for messages from the game shell
+      // Runs when an option is picked
+      function onAnswerClick() {
+        if (correctAnswer == chosenAnswer) {
+          if (question == NUMBER_OF_QUESTIONS) {
+            messageEl.textContent = "Ad successfully watched!"
+          setTimeout(() => adSuccess(), 800);
+          } else {
+            updateQuestion();
+          }
+        } else {
+          messageEl.textContent = "Incorrect. Reloading page..."
+          setTimeout(() => adFail(), 800);
+        }
+      }
+
+      options.forEach(option => {
+        option.addEventListener('click', () => {
+          chosenAnswer = parseInt(option.dataset.value);
+          onAnswerClick();
+        });
+      });
+
+      // Show survey after the video finishes playing
       window.addEventListener('message', (event) => {
-        if (!event.data || !event.data.type) return;
-
-        if (event.data.type === 'adStarted') {
-          // Show the skip button when the ad starts
-          skipButton.style.display = 'block';
-        }
-
-        // By default, if the user doesn't "skip" the ad before the video ends,
-        // we call fail to restart. You're welcome to replace this with a survey
-        // or other interaction instead (see examples/survey).
-        if (event.data.type === 'adFinished') {
-          skipButton.style.display = 'none';
-          window.top.postMessage({ type: 'fail' }, '*');
+        if (event.data && event.data.type === 'adFinished') {
+          document.getElementById('overlay').classList.remove('hidden');
         }
       });
 
-      // Your ad overlay code goes here, we've added a simple example below:
-      skipButton.addEventListener('click', () => {
-        skipButton.style.display = 'none';
-        adSuccess();
+      start.addEventListener('click', () => {
+        document.getElementById('options').style.display = 'flex';
+        start.style.display = 'none';
+        updateQuestion();
       });
-
     })(window, document);
   </script>
 </body>
