@@ -91,10 +91,10 @@
     <div id="quiz">
       <h3 id="topMsg">To confirm you've watched the ad, please answer a few questions:</h3>
       <div id="options">
-        <button class="option" data-value=1>Option A</button>
-        <button class="option" data-value=2>Option B</button>
-        <button class="option" data-value=3>Option C</button>
-        <button class="option" data-value=4>Option D</button>
+        <button class="option" data-value=1>Option 1</button>
+        <button class="option" data-value=2>Option 2</button>
+        <button class="option" data-value=3>Option 3</button>
+        <button class="option" data-value=4>Option 4</button>
       </div>
       <button id="start">Start</button>
       <div id="message"></div>
@@ -102,6 +102,13 @@
   </div>
 
   <script>
+    /*
+      After the ad finishes playing, the person has to take a quiz on the ad for a success.
+      The questions are multiple-choice, and you need to answer 3 questions correctly 
+      in a row to succeed (The number can be changed). One wrong answer will result in a fail,
+      and they will have to watch the whole thing again and retake the quiz. Questions are chosen
+      randomly from the list below.
+    */
     (function(window, document) {
       const topMsg = document.getElementById('topMsg');
       const options = document.querySelectorAll('.option');
@@ -111,21 +118,23 @@
       let chosenAnswer = 0;
       let correctAnswer = 0;
       let question = 0;
+      let prevQuestions = []; // This avoids the same question from being asked
 
-      // I'm aware that these questions are completely incorrect, but that makes it even more annoying lol
-      const QUESTIONS = [ // Format: [question, options a through d, correct option]
-        ['How many times did the letter \'E\' appear in the ad?', '9', '21', '67', '5', 3], // haha six-seveeeeen
-        ['How long was the ad?', '12 seconds', '30 seconds', '38 seconds', 'None of the above', 2],
+      // I'm aware that the questions' corrent answers don't always match with the ads, but that makes it even more annoying lol
+      // If you want to add questions, paste them in this array. Format: [question, options 1 through 4, correct option (0 means a random answer will be correct).]
+      const QUESTIONS = [
+        ['How many times did the letter \'E\' appear in the ad?', '9', '21', '67', '5', 0], // haha six-seveeeeen
         ['How often will you use this product?', 'Daily', 'Hourly', 'Every 2 days', 'Weekly', 1],
-        ['How much does the product in the ad cost?', '$23.99', '$3', '$3k', '$69', 4],
-        ['What is the actor\'s name?', 'John Smith', 'Jimmy Donaldson', 'Hugh Jass', 'None of these', 3],
         ['Is the character in the ad left or right-handed?', 'Left', 'Right', 'Both', 'Neither', 2],
-        ['What was the average color of the 100th frame?', 'Blue', 'Tan', 'Green', 'Purple', 2],
-        ['What was the last word of the first sentence in the ad?', 'it', 'end', 'flavor', 'you', 4],
-        ['What year was the ad created?', '1974', '2024', '1979', '1992', 3],
         ['Would you like to purchase the product?', 'Definitely Yes', 'Yes', 'Unsure', 'No', 1],
+        ['What is the actor\'s name?', 'John Smith', 'Jimmy Donaldson', 'Hugh Jass', 'None of these', 0],
+        ['How long was the ad?', 'Under 12 seconds', '12-60 seconds', 'Over a minute', 'None of the above', 2],
+        ['What was the last word of the first sentence in the ad?', 'it', 'end', 'flavor', 'you', 0],
+        ['How much does the product in the ad cost?', '$23.99', '$3', '$3k', '$69', 0],
+        ['About how much of this product has been sold within the past month?', '1k', '10k', '100k', 'One million', 0],
+        ['Is the main person in the ad attractive?', 'Definitely Yes', 'Yes', 'Unsure', 'No', 2]
       ];
-      const NUMBER_OF_QUESTIONS = 3; // # of right answers in a row for a success
+      const NUMBER_OF_QUESTIONS = 3; // # of questions that need to be answered correctly for a success, DO NOT SET THIS HIGHER THAN THE LENGTH OF THE QUESTIONS ARRAY!!!
 
       function adSuccess() {
         window.top.postMessage({ type: 'success' }, '*');
@@ -136,12 +145,33 @@
 
       // Updates the text for the question and the correctAnswer variable
       function updateQuestion() {
-        let questionArray = QUESTIONS[Math.floor(Math.random() * QUESTIONS.length)];
+        //This ensures the question picked hasn't already been asked
+        let questionsIndex = 0;
+        let alreadyAsked = false;
+        do {
+          questionsIndex = Math.floor(Math.random() * QUESTIONS.length)
+          alreadyAsked = false;
+          for(const index of prevQuestions) {
+            if (index == questionsIndex) {
+              alreadyAsked = true;
+              break;
+            }
+          }
+        } while (alreadyAsked);
+        prevQuestions.push(questionsIndex);
+        console.log(prevQuestions)
+
+        // Updates text and correctAnswer
+        let questionArray = QUESTIONS[questionsIndex];
+        []
         topMsg.textContent = "Question " + (++question) + "/" + NUMBER_OF_QUESTIONS + ": " + questionArray[0];
         options.forEach(option => {
           option.textContent = questionArray[option.dataset.value];
         });
         correctAnswer = questionArray[5];
+        if (correctAnswer == 0) {
+          correctAnswer = Math.floor(Math.random() * 4)
+        }
       }
 
       // Runs when an option is picked
