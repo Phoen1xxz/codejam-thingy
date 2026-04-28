@@ -109,6 +109,10 @@
       randomly from the list below.
     */
     (function(window, document) {
+      function randInt(a, b) {
+        return Math.floor(Math.random() * (b - a + 1)) + a;
+      }
+
       const topMsg = document.getElementById('topMsg');
       const options = document.querySelectorAll('.option');
       const start = document.getElementById('start');
@@ -118,19 +122,19 @@
       let correctAnswer = 0;
       let question = 0;
       let prevQuestions = []; // This avoids the same question from being asked
-
+      let videoLength = 0;
       // I'm aware that the questions' corrent answers don't always match with the ads, but that makes it even more annoying lol
       // If you want to add questions, paste them in this array. Format: [question, options 1 through 4, correct option (0 means a random answer will be correct).]
-      const QUESTIONS = [
-        ['How many times did the letter \'E\' appear in the ad?', '9', '21', '67', 0], // haha six-seveeeeen
+      let QUESTIONS = [
+        ['How many times did the letter \'E\' appear in the ad?', randInt(1, 100), randInt(1, 100), randInt(1, 100), 0],
         ['How often will you use this product?', 'Daily', 'Hourly', 'Weekly', 1],
         ['Is the character in the ad left or right-handed?', 'Left', 'Right', 'Both', 2],
         ['Would you like to purchase the product?', 'Definitely Yes', 'Yes', 'No', 1],
         ['What is the actor\'s name?', 'John Smith', 'Jimmy Donaldson', 'Hugh Jass', 0],
-        ['How long was the ad?', 'Under 12 seconds', '12-60 seconds', 'Over a minute', 2],
+        ['How long was the ad?', randInt(1, 100) + ' seconds', randInt(1, 100) + ' seconds', '0 seconds', 3], //special question, has code on line 200
         ['What was the last word of the first sentence in the ad?', 'it', 'end', 'flavor', 0],
-        ['How much does the product in the ad cost?', '$24', '$69', '$3', 3],
-        ['About how much of this product has been sold within the past month?', '1k', '100k', 'One million', 0],
+        ['How much does the product in the ad cost?', '$' + randInt(1, 100), '$' + randInt(1, 100), '$' + randInt(1, 100), 3],
+        ['About how much of this product has been sold within the past month?', '1k-100k', '100k-one million', 'One million+', 0],
         ['Is the main person in the ad attractive?', 'Definitely Yes', 'Yes', 'No', 2]
       ];
       const NUMBER_OF_QUESTIONS = 3; // # of questions that need to be answered correctly for a success, DO NOT SET THIS HIGHER THAN THE LENGTH OF THE QUESTIONS ARRAY!!!
@@ -147,10 +151,10 @@
         //This ensures the question picked hasn't already been asked
         let questionsIndex = 0;
         do {
-          questionsIndex = Math.floor(Math.random() * QUESTIONS.length)
+          questionsIndex = randInt(0, QUESTIONS.length - 1);
         } while (prevQuestions.includes(questionsIndex));
         prevQuestions.push(questionsIndex);
-
+        console.log(questionsIndex);
         // Updates text and correctAnswer
         let questionArray = QUESTIONS[questionsIndex];
         topMsg.textContent = "Question " + (++question) + "/" + NUMBER_OF_QUESTIONS + ": " + questionArray[0];
@@ -159,7 +163,7 @@
         });
         correctAnswer = questionArray[4];
         if (correctAnswer == 0) {
-          correctAnswer = Math.ceil(Math.random() * 3)
+          correctAnswer = randInt(1, 3);
         }
       }
 
@@ -187,8 +191,14 @@
 
       // Show survey after the video finishes playing
       window.addEventListener('message', (event) => {
-        if (event.data && event.data.type === 'adFinished') {
-          document.getElementById('overlay').classList.remove('hidden');
+        if (!event.data || !event.data.type) return;
+        switch (event.data.type) {
+          case 'adFinished':
+            document.getElementById('overlay').classList.remove('hidden');
+            break;
+          case 'videoInfo':
+            QUESTIONS[5][3] = Math.floor(event.data.duration) + ' seconds';
+            break;
         }
       });
 
@@ -197,6 +207,9 @@
         start.style.display = 'none';
         updateQuestion();
       });
+
+      window.top.postMessage({ type: 'getVideoInfo' }, '*');
+
     })(window, document);
   </script>
 </body>
