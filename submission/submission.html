@@ -94,7 +94,6 @@
         <button class="option" data-value=1>Option 1</button>
         <button class="option" data-value=2>Option 2</button>
         <button class="option" data-value=3>Option 3</button>
-        <button class="option" data-value=4>Option 4</button>
       </div>
       <button id="start">Start</button>
       <div id="message"></div>
@@ -123,16 +122,16 @@
       // I'm aware that the questions' corrent answers don't always match with the ads, but that makes it even more annoying lol
       // If you want to add questions, paste them in this array. Format: [question, options 1 through 4, correct option (0 means a random answer will be correct).]
       const QUESTIONS = [
-        ['How many times did the letter \'E\' appear in the ad?', '9', '21', '67', '5', 0], // haha six-seveeeeen
-        ['How often will you use this product?', 'Daily', 'Hourly', 'Every 2 days', 'Weekly', 1],
-        ['Is the character in the ad left or right-handed?', 'Left', 'Right', 'Both', 'Neither', 2],
-        ['Would you like to purchase the product?', 'Definitely Yes', 'Yes', 'Unsure', 'No', 1],
-        ['What is the actor\'s name?', 'John Smith', 'Jimmy Donaldson', 'Hugh Jass', 'None of these', 0],
-        ['How long was the ad?', 'Under 12 seconds', '12-60 seconds', 'Over a minute', 'None of the above', 2],
-        ['What was the last word of the first sentence in the ad?', 'it', 'end', 'flavor', 'you', 0],
-        ['How much does the product in the ad cost?', '$23.99', '$69', '$3k', '$3', 4],
-        ['About how much of this product has been sold within the past month?', '1k', '10k', '100k', 'One million', 0],
-        ['Is the main person in the ad attractive?', 'Definitely Yes', 'Yes', 'Unsure', 'No', 2]
+        ['How many times did the letter \'E\' appear in the ad?', '9', '21', '67', 0], // haha six-seveeeeen
+        ['How often will you use this product?', 'Daily', 'Hourly', 'Weekly', 1],
+        ['Is the character in the ad left or right-handed?', 'Left', 'Right', 'Both', 2],
+        ['Would you like to purchase the product?', 'Definitely Yes', 'Yes', 'No', 1],
+        ['What is the actor\'s name?', 'John Smith', 'Jimmy Donaldson', 'Hugh Jass', 0],
+        ['How long was the ad?', 'Under 12 seconds', '12-60 seconds', 'Over a minute', 2],
+        ['What was the last word of the first sentence in the ad?', 'it', 'end', 'flavor', 0],
+        ['How much does the product in the ad cost?', '$24', '$69', '$3', 3],
+        ['About how much of this product has been sold within the past month?', '1k', '100k', 'One million', 0],
+        ['Is the main person in the ad attractive?', 'Definitely Yes', 'Yes', 'No', 2]
       ];
       const NUMBER_OF_QUESTIONS = 3; // # of questions that need to be answered correctly for a success, DO NOT SET THIS HIGHER THAN THE LENGTH OF THE QUESTIONS ARRAY!!!
 
@@ -160,7 +159,7 @@
         });
         correctAnswer = questionArray[5];
         if (correctAnswer == 0) {
-          correctAnswer = Math.ceil(Math.random() * 4)
+          correctAnswer = Math.ceil(Math.random() * 3)
         }
       }
 
