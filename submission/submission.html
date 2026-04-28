@@ -149,7 +149,7 @@
 
       // Updates the text for the question and the correctAnswer variable
       function updateQuestion() {
-        //This ensures the question picked hasn't already been asked
+        // This ensures the question picked hasn't already been asked
         let questionsIndex = 0;
         do {
           questionsIndex = randInt(0, QUESTIONS.length - 1);
@@ -194,7 +194,7 @@
         });
       });
 
-      // Show survey after the video finishes playing
+      // Show quiz after the video finishes playing
       window.addEventListener('message', (event) => {
         if (!event.data || !event.data.type) return;
         switch (event.data.type) {
