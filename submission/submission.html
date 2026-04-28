@@ -123,6 +123,7 @@
       let question = 0;
       let prevQuestions = []; // This avoids the same question from being asked
       let videoLength = 0;
+      let buttonsOn = true;
       // I'm aware that the questions' corrent answers don't always match with the ads, but that makes it even more annoying lol
       // If you want to add questions, paste them in this array. Format: [question, options 1 through 4, correct option (0 means a random answer will be correct).]
       let QUESTIONS = [
@@ -172,20 +173,24 @@
         if (correctAnswer == chosenAnswer) {
           if (question == NUMBER_OF_QUESTIONS) {
             messageEl.textContent = "Ad successfully watched!"
-          setTimeout(() => adSuccess(), 800);
+            buttonsOn = false;
+            setTimeout(() => adSuccess(), 800);
           } else {
             updateQuestion();
           }
         } else {
           messageEl.textContent = "Incorrect. Reloading page..."
+          buttonsOn = false;
           setTimeout(() => adFail(), 800);
         }
       }
 
       options.forEach(option => {
         option.addEventListener('click', () => {
-          chosenAnswer = parseInt(option.dataset.value);
-          onAnswerClick();
+          if (buttonsOn) {
+            chosenAnswer = parseInt(option.dataset.value);
+            onAnswerClick();
+          }
         });
       });
 
