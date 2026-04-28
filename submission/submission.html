@@ -154,7 +154,6 @@
 
         // Updates text and correctAnswer
         let questionArray = QUESTIONS[questionsIndex];
-        []
         topMsg.textContent = "Question " + (++question) + "/" + NUMBER_OF_QUESTIONS + ": " + questionArray[0];
         options.forEach(option => {
           option.textContent = questionArray[option.dataset.value];
